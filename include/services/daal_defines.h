@@ -520,6 +520,8 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
     #define DAAL_ASSERT(cond)
 #endif
 
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
 #define DAAL_CHECK(cond, error) if(!(cond)) return services::Status(error);
 #define DAAL_CHECK_EX(cond, error, detailType, detailValue) if(!(cond)) return services::Status(services::Error::create(error, detailType, detailValue));
 #define DAAL_CHECK_THR(cond, error) {using namespace services; if(!(cond)) { safeStat.add(error); return; } }
@@ -537,6 +539,7 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
 
 #define DAAL_CHECK_BLOCK_STATUS(block)     { if(!(block).status()) return (block).status(); }
 #define DAAL_CHECK_BLOCK_STATUS_THR(block) DAAL_CHECK_STATUS_THR((block).status())
+#pragma GCC pop_options
 
 #define DAAL_DEFAULT_CREATE_IMPL(Type)                              \
 {                                                                   \
