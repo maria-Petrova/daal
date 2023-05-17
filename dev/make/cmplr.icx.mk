@@ -18,7 +18,7 @@
 #  Intel compiler defenitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e
+PLATs.icx = lnx32e win32e
 
 CMPLRDIRSUFF.icx = _icx
 
@@ -27,9 +27,14 @@ CORE.SERV.COMPILER.icx = generic
 -Zl.icx =  -no-intel-lib=libirc
 -DEBC.icx = -g
 
+-Zl.icx = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
+-Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
+
 COMPILER.lnx.icx = icpx -m64 \
                      -Werror -Wreturn-type
 
+
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Qopenmp-simd -Wno-deprecated-declarations -Wno-error=unused-command-line-argument
 
 link.dynamic.lnx.icx = icpx -m64
 
