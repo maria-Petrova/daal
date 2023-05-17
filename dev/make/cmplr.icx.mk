@@ -24,7 +24,7 @@ CMPLRDIRSUFF.icx = _icx
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx = $(if $(OS_is_win),-Zl,) -no-intel-lib=libirc
+-Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib=libirc
 -DEBC.icx = -g
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
