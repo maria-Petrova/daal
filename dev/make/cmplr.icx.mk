@@ -24,10 +24,9 @@ CMPLRDIRSUFF.icx = _icx
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx =  -no-intel-lib=libirc
+-Zl.icx = $(if $(OS_is_win),-Zl,) -no-intel-lib=libirc
 -DEBC.icx = -g
 
--Zl.icx = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icx = icpx -m64 \
