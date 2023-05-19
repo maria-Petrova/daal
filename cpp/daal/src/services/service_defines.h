@@ -40,7 +40,6 @@ bool daal_check_is_intel_cpu();
     #define PRAGMA_NOVECTOR         _Pragma("novector")
     #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
     #define PRAGMA_VECTOR_UNALIGNED _Pragma("vector unaligned")
-    #define PRAGMA_VECTOR_ALWAYS    _Pragma("vector always")
     #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
     #define PRAGMA_ICC_OMP(ARGS)    PRAGMA_ICC_TO_STR(omp ARGS)
     #define PRAGMA_ICC_NO16(ARGS)   PRAGMA_ICC_TO_STR(ARGS)
@@ -74,6 +73,12 @@ bool daal_check_is_intel_cpu();
     #define PRAGMA_ICC_OMP(ARGS)
     #define PRAGMA_ICC_NO16(ARGS)
     #define DAAL_TYPENAME typename
+#endif
+
+#if defined(__INTEL_LLVM_COMPILER)
+    #define PRAGMA_VECTOR_ALWAYS _Pragma("vector")
+#elif defined(__INTEL_COMPILER)
+    #define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
 #endif
 
 #if defined __APPLE__ && defined __INTEL_COMPILER && (__INTEL_COMPILER == 1600)

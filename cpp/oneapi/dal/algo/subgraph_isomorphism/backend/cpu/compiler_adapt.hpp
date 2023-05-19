@@ -22,12 +22,18 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-#if defined(__INTEL_COMPILER)
-#define ONEDAL_IVDEP         _Pragma("ivdep")
-#define ONEDAL_VECTOR_ALWAYS _Pragma("vector always")
+#if defined(__INTEL_LLVM_COMPILER)
+    #define ONEDAL_VECTOR_ALWAYS _Pragma("vector")
+#elif defined(__INTEL_COMPILER)
+    #define ONEDAL_VECTOR_ALWAYS _Pragma("vector always")
 #else
-#define ONEDAL_IVDEP
-#define ONEDAL_VECTOR_ALWAYS
+    #define ONEDAL_VECTOR_ALWAYS
+#endif
+
+#if defined(DAAL_INTEL_CPP_COMPILER)
+    #define ONEDAL_IVDEP         _Pragma("ivdep")
+#else
+    #define ONEDAL_IVDEP
 #endif
 
 template <typename Cpu>
