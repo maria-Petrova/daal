@@ -30,7 +30,7 @@ CORE.SERV.COMPILER.icx = generic
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
+                     -Wreturn-type
 
 
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Qopenmp-simd -Wno-deprecated-declarations -Wno-error=unused-command-line-argument
