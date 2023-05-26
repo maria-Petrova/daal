@@ -270,8 +270,8 @@ protected:
             for (size_t i = 0; i < end - begin; i++)
             {
                 FPType sum = FPType(0);
-                PRAGMA_IVDEP
                 PRAGMA_ICC_NO16(omp simd reduction(+ : sum))
+                PRAGMA_IVDEP
                 for (size_t j = 0; j < nCols; j++)
                 {
                     sum += data[i * nCols + j] * data[i * nCols + j];

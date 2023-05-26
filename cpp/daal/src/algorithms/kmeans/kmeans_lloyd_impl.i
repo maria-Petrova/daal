@@ -68,8 +68,8 @@ struct TaskKMeansLloyd
             for (size_t k = 0; k < clNum; k++)
             {
                 algorithmFPType sum = algorithmFPType(0);
-                PRAGMA_IVDEP
                 PRAGMA_ICC_NO16(omp simd reduction(+ : sum))
+                PRAGMA_IVDEP
                 for (size_t j = 0; j < dim; j++)
                 {
                     sum += cCenters[k * dim + j] * cCenters[k * dim + j] * 0.5;

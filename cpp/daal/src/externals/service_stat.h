@@ -109,9 +109,9 @@ struct Statistics
 
             fpType wsum = 0;
 
+            PRAGMA_ICC_NO16(omp simd reduction(+ : wsum))
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            PRAGMA_ICC_NO16(omp simd reduction(+ : wsum))
             for (size_t i = 0; i < nRows; i++)
             {
                 dataWeightCol[i] = weights[i] * dataCol[i];
