@@ -35,11 +35,22 @@ bool daal_check_is_intel_cpu();
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
-#if defined(DAAL_INTEL_CPP_COMPILER)
+#if defined(__INTEL_COMPILER)
     #define PRAGMA_IVDEP            _Pragma("ivdep")
     #define PRAGMA_NOVECTOR         _Pragma("novector")
     #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
     #define PRAGMA_VECTOR_UNALIGNED _Pragma("vector unaligned")
+    #define PRAGMA_VECTOR_ALWAYS    _Pragma("vector always")
+    #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
+    #define PRAGMA_ICC_OMP(ARGS)    PRAGMA_ICC_TO_STR(omp ARGS)
+    #define PRAGMA_ICC_NO16(ARGS)   PRAGMA_ICC_TO_STR(ARGS)
+    #define DAAL_TYPENAME           typename
+#elif defined(__INTEL_LLVM_COMPILER)
+    #define PRAGMA_IVDEP            _Pragma("ivdep")
+    #define PRAGMA_NOVECTOR         _Pragma("novector")
+    #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector")
+    #define PRAGMA_VECTOR_UNALIGNED _Pragma("vector")
+    #define PRAGMA_VECTOR_ALWAYS    _Pragma("vector")
     #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
     #define PRAGMA_ICC_OMP(ARGS)    PRAGMA_ICC_TO_STR(omp ARGS)
     #define PRAGMA_ICC_NO16(ARGS)   PRAGMA_ICC_TO_STR(ARGS)
