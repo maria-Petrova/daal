@@ -453,7 +453,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
         if (ptr == nullptr) return;
 
         PRAGMA_VECTOR_ALWAYS
-        PRAGMA_VECTOR_ALIGNED
+        //PRAGMA_VECTOR_ALIGNED
         for (int i = 0; i < 1024; i++) mHist[i] += ptr[i];
 
         services::internal::service_free<int, cpu>(ptr);

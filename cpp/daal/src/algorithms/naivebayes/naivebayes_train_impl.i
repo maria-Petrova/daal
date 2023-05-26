@@ -199,7 +199,7 @@ Status collectCounters(const Parameter * nbPar, NumericTable * ntData, NumericTa
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        PRAGMA_VECTOR_ALIGNED
+        //PRAGMA_VECTOR_ALIGNED
         for (size_t j = 0; j < c; j++)
         {
             for (size_t i = 0; i < p; i++)
