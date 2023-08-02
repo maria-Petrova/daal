@@ -85,7 +85,7 @@ if { [ module-info mode ] == "unload" || [ module-info mode ] == "remove" } {
 # ###### Component Specific env vars setup ###################################
 
 # Set intermediate variables
-set daalroot "$componentroot/$modulefilever"
+set dalroot "$componentroot/$modulefilever"
 set daal_target_arch         "intel64"
 
 module-whatis "Intel(R) oneAPI Data Analytics Library for $daal_target_arch."
@@ -93,12 +93,11 @@ module-whatis "Intel(R) oneAPI Data Analytics Library for $daal_target_arch."
 # Setup environment variables
 setenv          DAL_MAJOR_BINARY   __DAL_MAJOR_BINARY__
 setenv          DAL_MINOR_BINARY   __DAL_MINOR_BINARY__
-setenv          DALROOT            $daalroot
-setenv          DAALROOT           $daalroot
+setenv          DALROOT            $dalroot
 
-prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
-prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
-prepend-path    CPATH              $daalroot/include
-prepend-path    CLASSPATH          $daalroot/lib/onedal.jar
-prepend-path    CMAKE_PREFIX_PATH  $daalroot
-prepend-path    PKG_CONFIG_PATH    $daalroot/lib/pkgconfig
+prepend-path    LD_LIBRARY_PATH    $dalroot/lib/$daal_target_arch
+prepend-path    LIBRARY_PATH       $dalroot/lib/$daal_target_arch
+prepend-path    CPATH              $dalroot/include
+prepend-path    CLASSPATH          $dalroot/lib/onedal.jar
+prepend-path    CMAKE_PREFIX_PATH  $dalroot
+prepend-path    PKG_CONFIG_PATH    $dalroot/lib/pkgconfig
