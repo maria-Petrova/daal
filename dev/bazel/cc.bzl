@@ -362,7 +362,21 @@ def _cc_dynamic_lib_impl(ctx):
     # against and lld-link fails with undefined externals. Nothing is lost by
     # skipping it here: the Windows toolchain registers an empty
     # `dynamic_link_libs`, so the feature's other flag set expands to nothing.
-    dynamic_dep_features = [] if is_windows else [
+    # `link_dynamic_deps = True` opts a single target out of the suppression.
+    # Required for `//:release_all`'s `onedal_thread`: nothing supplies TBB to a
+    # process that only dlopen()s it, so without the DT_NEEDED entries 30
+    # `tbb::detail::r1::*` symbols stay undefined and -- the libraries being
+    # linked `-z now` -- `import daal4py` fails immediately. Note this cannot be
+    # expressed as `linkopts = ["-ltbb"]`: the suppression also removes the
+    # dependency's library search path, so `ld` reports `cannot find -ltbb`.
+    #
+    # Keep it off for `onedal_core`/`onedal`: with the suppression disabled they
+    # additionally record the Intel runtime (`libimf.so`), which the Make
+    # package does not ship and GCC consumers cannot resolve -- every
+    # Release/dynamic GCC example then fails with exit 127. Only the threading
+    # layer both needs an external runtime dependency and stays clear of
+    # `libimf`.
+    dynamic_dep_features = [] if (is_windows or ctx.attr.link_dynamic_deps) else [
         "do_not_link_dynamic_dependencies",
     ]
     toolchain, feature_config = _init_cc_rule(ctx, features=dynamic_dep_features)
@@ -432,6 +446,13 @@ cc_dynamic_lib = rule(
         "lib_name": attr.string(),
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
+        "link_dynamic_deps": attr.bool(
+            default = False,
+            doc = "Record this library's dynamic dependencies in DT_NEEDED " +
+                  "instead of suppressing them. Set it only where a released " +
+                  "library must carry an external runtime dependency; see " +
+                  "_cc_dynamic_lib_impl. No effect on Windows.",
+        ),
         "def_file": attr.label(allow_single_file=True),
         "linkopts": attr.string_list(
             default = [],

@@ -319,29 +319,17 @@ daal_dynamic_lib(
     name = "thread_dynamic",
     lib_name = "onedal_thread",
     linker_scripts = [":thread_dynamic.lds"],
-    # `//:release_all` ships this library, so it has to carry its own TBB
-    # dependency: nothing supplies TBB to a process that only dlopen()s it.
-    # Without these, `DT_NEEDED` lists just libgcc_s/libdl/libc, 30
-    # `tbb::detail::r1::*` symbols stay undefined, and because the library is
-    # linked `-z now` `import daal4py` fails immediately with
-    # `undefined symbol: _ZN3tbb6detail2r15spawn...`. C++ consumers do not
-    # notice, since an executable links TBB itself.
+    # `//:release_all` ships this library and it is the one released library
+    # that needs an external runtime dependency recorded: nothing supplies TBB
+    # to a process that only dlopen()s it, so otherwise `DT_NEEDED` lists just
+    # libgcc_s/libdl/libc, 30 `tbb::detail::r1::*` symbols stay undefined, and
+    # `import daal4py` fails immediately. C++ consumers never notice, because an
+    # executable links TBB itself.
     #
-    # Spelled as linkopts rather than relying on `:threading_tbb`'s `@tbb//:tbb`
-    # dep: `cc_dynamic_lib` enables the `do_not_link_dynamic_dependencies`
-    # feature on Linux, which drops dependency shared libraries from the link.
-    # Flipping that feature off would also pull in the toolchain's
-    # `dynamic_link_libs` (-lstdc++ -lm -ldl) and the Intel runtime (libimf),
-    # which the Make package does not record and GCC consumers cannot resolve.
-    # A target's own linkopts bypass the suppression (cc/link.bzl:283), so this
-    # records exactly the two libraries needed and nothing else.
-    linkopts = select({
-        "@platforms//os:windows": [],
-        "//conditions:default": [
-            "-ltbb",
-            "-ltbbmalloc",
-        ],
-    }),
+    # Deliberately not set on `core_dynamic`/`:dynamic`: those additionally pick
+    # up `libimf.so`, which GCC consumers cannot resolve. `onedal_thread` is
+    # clear of it.
+    link_dynamic_deps = True,
     deps = [
         ":threading_tbb",
     ],
