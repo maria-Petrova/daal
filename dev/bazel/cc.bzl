@@ -354,17 +354,6 @@ def _cc_dynamic_lib_impl(ctx):
     # live in test runfiles; DT_NEEDED entries on those deps are not
     # resolved through the executable RUNPATH.
     #
-    # `link_dynamic_deps = True` opts a target out of that suppression. It is
-    # required for anything shipped by `//:release_all`: a released
-    # `libonedal_thread.so` that records no `DT_NEEDED` on `libtbb.so.12` is
-    # unusable outside a Bazel test. Nothing supplies TBB to the process, so
-    # `dlopen` fails eagerly (the libs are linked `-z now`) with
-    # `undefined symbol: _ZN3tbb6detail2r15spawn...`, which is exactly what
-    # `import daal4py` hits. The Make packaging links these dependencies, so
-    # suppressing them here also makes the Bazel release diverge from it:
-    # `libtbb.so.12`, `libtbbmalloc.so.2`, `libpthread.so.0`, `libm.so.6` and
-    # the inter-oneDAL `libonedal.so.4` all go missing.
-    #
     # Windows must not request the feature. MSVC resolves every external at
     # link time, so a DLL that consumes another DLL needs the dependency's
     # import library on the command line -- exactly the `interface_library`
@@ -373,7 +362,7 @@ def _cc_dynamic_lib_impl(ctx):
     # against and lld-link fails with undefined externals. Nothing is lost by
     # skipping it here: the Windows toolchain registers an empty
     # `dynamic_link_libs`, so the feature's other flag set expands to nothing.
-    dynamic_dep_features = [] if (is_windows or ctx.attr.link_dynamic_deps) else [
+    dynamic_dep_features = [] if is_windows else [
         "do_not_link_dynamic_dependencies",
     ]
     toolchain, feature_config = _init_cc_rule(ctx, features=dynamic_dep_features)
@@ -443,13 +432,6 @@ cc_dynamic_lib = rule(
         "lib_name": attr.string(),
         "lib_tags": attr.string_list(),
         "deps": attr.label_list(mandatory=True),
-        "link_dynamic_deps": attr.bool(
-            default = False,
-            doc = "Record dynamic dependencies of this library in DT_NEEDED " +
-                  "instead of suppressing them. Must be set for libraries " +
-                  "shipped by //:release_all; see _cc_dynamic_lib_impl. " +
-                  "No effect on Windows, which never suppresses them.",
-        ),
         "def_file": attr.label(allow_single_file=True),
         "linkopts": attr.string_list(
             default = [],

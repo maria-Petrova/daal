@@ -298,8 +298,6 @@ exports_files([
 daal_dynamic_lib(
     name = "core_dynamic",
     lib_name = "onedal_core",
-    # Shipped by //:release_all -- must record its dynamic deps.
-    link_dynamic_deps = True,
     deps = [
         ":core",
         ":all_algorithms",
@@ -321,11 +319,29 @@ daal_dynamic_lib(
     name = "thread_dynamic",
     lib_name = "onedal_thread",
     linker_scripts = [":thread_dynamic.lds"],
-    # Shipped by //:release_all. Without this the released library records no
-    # DT_NEEDED on libtbb.so.12/libtbbmalloc.so.2 even though `:threading_tbb`
-    # depends on them, leaving 30 tbb::detail::r1::* symbols unresolvable at
-    # dlopen time -- the daal4py/sklearnex import failure.
-    link_dynamic_deps = True,
+    # `//:release_all` ships this library, so it has to carry its own TBB
+    # dependency: nothing supplies TBB to a process that only dlopen()s it.
+    # Without these, `DT_NEEDED` lists just libgcc_s/libdl/libc, 30
+    # `tbb::detail::r1::*` symbols stay undefined, and because the library is
+    # linked `-z now` `import daal4py` fails immediately with
+    # `undefined symbol: _ZN3tbb6detail2r15spawn...`. C++ consumers do not
+    # notice, since an executable links TBB itself.
+    #
+    # Spelled as linkopts rather than relying on `:threading_tbb`'s `@tbb//:tbb`
+    # dep: `cc_dynamic_lib` enables the `do_not_link_dynamic_dependencies`
+    # feature on Linux, which drops dependency shared libraries from the link.
+    # Flipping that feature off would also pull in the toolchain's
+    # `dynamic_link_libs` (-lstdc++ -lm -ldl) and the Intel runtime (libimf),
+    # which the Make package does not record and GCC consumers cannot resolve.
+    # A target's own linkopts bypass the suppression (cc/link.bzl:283), so this
+    # records exactly the two libraries needed and nothing else.
+    linkopts = select({
+        "@platforms//os:windows": [],
+        "//conditions:default": [
+            "-ltbb",
+            "-ltbbmalloc",
+        ],
+    }),
     deps = [
         ":threading_tbb",
     ],
