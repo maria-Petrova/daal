@@ -145,11 +145,22 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
 
 def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
                     dpc_deps=[], dpc_host_deps=[], extra_deps=[], lib_tags=["dal"],
-                    dpc_lib_tags=None, features=[], **kwargs):
+                    dpc_lib_tags=None, link_dynamic_deps=False,
+                    dpc_link_dynamic_deps=None, features=[], **kwargs):
+    # `link_dynamic_deps` is split host/DPC the same way `lib_tags` is, because
+    # the two halves want opposite answers. The DPC library has to record its
+    # dynamic dependencies -- without them `libonedal_dpc.so` leaves 528 symbols
+    # undefined (60 MKL, 211 sycl) and daal4py reports
+    # `RuntimeError: oneDAL GPU/DPC++ support is not available in the current
+    # installation`. The host library must not: with the suppression disabled it
+    # additionally records the Intel runtime (`libimf.so`), which GCC consumers
+    # cannot resolve. Only icx builds consume the DPC library, so `libimf` there
+    # is harmless.
     cc_dynamic_lib(
         name = name,
         lib_name = lib_name,
         lib_tags = lib_tags,
+        link_dynamic_deps = link_dynamic_deps,
         deps = dal_deps + extra_deps + host_deps,
         **kwargs
     )
@@ -158,6 +169,9 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
         features = features + [ "dpc++" ],
         lib_name = lib_name + "_dpc",
         lib_tags = dpc_lib_tags if dpc_lib_tags != None else lib_tags,
+        link_dynamic_deps = (dpc_link_dynamic_deps
+                             if dpc_link_dynamic_deps != None
+                             else link_dynamic_deps),
         # dpc_host_deps is reserved for platform glue compiled as host code
         # into a DPC library. Never forward ordinary host_deps here: doing so
         # folds host parameter objects into the DPC library as duplicates.

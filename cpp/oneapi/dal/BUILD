@@ -113,6 +113,10 @@ dal_static_lib(
 dal_dynamic_lib(
     name = "dynamic",
     lib_name = "onedal",
+    # DPC only: `libonedal_dpc.so` must record its MKL/SYCL dependencies or
+    # daal4py cannot load the GPU backend. Left off for the host `libonedal`,
+    # which would otherwise pick up libimf.so and break GCC consumers.
+    dpc_link_dynamic_deps = True,
     # Mirror what Make puts on onedal.dll's Windows link line: the DAAL
     # implementation arrives through onedal_core's import library (`host_deps`
     # below), while the static MKL archives are linked in directly.
@@ -199,6 +203,9 @@ dal_dynamic_lib(
 dal_dynamic_lib(
     name = "dynamic_parameters",
     lib_name = "onedal_parameters",
+    # DPC only, as for `:dynamic`. Also restores the inter-oneDAL DT_NEEDED on
+    # libonedal_dpc.so.4 that the Make package records.
+    dpc_link_dynamic_deps = True,
     # On Windows, DAAL/MKL stay behind onedal_core's import library; only
     # parameter and oneAPI objects belong in this DLL. Keep Linux unchanged.
     lib_tags = select({
