@@ -298,6 +298,8 @@ exports_files([
 daal_dynamic_lib(
     name = "core_dynamic",
     lib_name = "onedal_core",
+    # Shipped by //:release_all -- must record its dynamic deps.
+    link_dynamic_deps = True,
     deps = [
         ":core",
         ":all_algorithms",
@@ -319,6 +321,11 @@ daal_dynamic_lib(
     name = "thread_dynamic",
     lib_name = "onedal_thread",
     linker_scripts = [":thread_dynamic.lds"],
+    # Shipped by //:release_all. Without this the released library records no
+    # DT_NEEDED on libtbb.so.12/libtbbmalloc.so.2 even though `:threading_tbb`
+    # depends on them, leaving 30 tbb::detail::r1::* symbols unresolvable at
+    # dlopen time -- the daal4py/sklearnex import failure.
+    link_dynamic_deps = True,
     deps = [
         ":threading_tbb",
     ],

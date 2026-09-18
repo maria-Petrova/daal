@@ -113,6 +113,8 @@ dal_static_lib(
 dal_dynamic_lib(
     name = "dynamic",
     lib_name = "onedal",
+    # `dynamic` and `dynamic_dpc` are both shipped by //:release_all.
+    link_dynamic_deps = True,
     # Mirror what Make puts on onedal.dll's Windows link line: the DAAL
     # implementation arrives through onedal_core's import library (`host_deps`
     # below), while the static MKL archives are linked in directly.
@@ -199,6 +201,9 @@ dal_dynamic_lib(
 dal_dynamic_lib(
     name = "dynamic_parameters",
     lib_name = "onedal_parameters",
+    # `dynamic_parameters` and `dynamic_parameters_dpc` are both shipped by
+    # //:release_all. Restores the inter-oneDAL DT_NEEDED on libonedal.so.4.
+    link_dynamic_deps = True,
     # On Windows, DAAL/MKL stay behind onedal_core's import library; only
     # parameter and oneAPI objects belong in this DLL. Keep Linux unchanged.
     lib_tags = select({
